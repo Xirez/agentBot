@@ -6,7 +6,7 @@ const databaseConfiguration = require('./settings/databaseConfiguration.js');
 
 const bot = new Discord.Client({autoReconnect: true});
 
-//CMD handler
+//Command Handler
 bot.commands = new Discord.Collection();
 fs.readdir("./cmds/", (err, files) => {
     if(err) console.error(err);
