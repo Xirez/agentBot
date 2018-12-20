@@ -1,16 +1,16 @@
 const Discord = require("discord.js");
 
-module.exports.run = async (bot, message, args, db) => {
+module.exports.run = async (bot, message, args, pool) => {
     let target = message.mentions.users.first() || message.guild.members.get(args[1]) || message.author;
     let replyChannel = message.guild.channels.find("name", "bot-spam");
-    
-    db.then(client => {
-        client.query(`SELECT xp FROM userdata WHERE id = ${target.id}`, function (err, result) {
-            if (err) throw err
 
-            if(!result[0]) return replyChannel.send("This user has not received any XP yet.").then(msg => {msg.delete(60000)});
+    pool.query(`SELECT xp FROM userdata WHERE id = '${target.id}'`, (error, response) => {
+        if(error) {
+            console.log('DB_ERROR: ', error);
+        } else {
+            if(!response.rows[0]) return replyChannel.send("This user has not received any XP yet.").then(msg => {msg.delete(60000)});
             
-            xp = result[0].xp;
+            xp = response.rows[0].xp;
             points = 0;
             output = 0;
             minlevel = 2;
@@ -32,10 +32,8 @@ module.exports.run = async (bot, message, args, db) => {
                     return;
                 }
             }
-        
-        
-        })
-    })
+        }
+    });
 }
 
 module.exports.help = {

@@ -1,9 +1,11 @@
-const settings = require("./settings.json");
+const settings = require("./settings/settings.json");
 const Discord = require("discord.js");
 const fs = require("fs");
-const con = require('mysql-ssh');
+const { Pool } = require('pg');
+const databaseConfiguration = require('./settings/databaseConfiguration.js');
 
-const bot = new Discord.Client({disableEveryone: true});
+const bot = new Discord.Client({autoReconnect: true});
+
 //CMD handler
 bot.commands = new Discord.Collection();
 fs.readdir("./cmds/", (err, files) => {
@@ -22,77 +24,54 @@ fs.readdir("./cmds/", (err, files) => {
     });
 });
 
-// Start of DB connection
-const db = con.connect(
-    {
-        host: '',
-        user: '',
-        privateKey: fs.readFileSync('sshkeypath.ppk')
-    },
-    {
-    host: "",
-    user: "",
-    password: "",
-    database: ""
-    }
-);
-db.then(client => {
-    client.query("SHOW TABLES", function (err, results, fields) {
-        if (err) throw err
-        console.log("Connection to database established!");
-    })
-})
-.catch(err => {
-    console.log(err)
-})
-// End of DB connect
-
-bot.on("ready", async () => {
-    console.log(`${bot.user.username} is ready!`);
-    bot.user.setActivity("Travian!");
-});
-
-//prevent DB con.timeout.
-setInterval(function(){
-    db.then(client => {
-        client.query("SHOW TABLES", function (err, results, fields) {
-            if (err) throw err
-        })
-    })
-}, 900000);
+// Start of pSQL DB con
+const pool = new Pool(databaseConfiguration);
+console.log('Connection to database established!');
 
 bot.on("message", async message => {
     if(message.author.bot) return;
     if(message.channel.type === "dm") return;
+    if(message.content.startsWith('http')) return;
 
-    // Start and updates xp and coins system
-    let xp = Math.floor(message.content.length / 2); // add filder for links
+    // Start updates of xp and coins system
+    let xp = Math.floor(message.content.length / 2);
 
     if(message.content.length <= 9) {
         coins = 0;
     } else {
         coins = Math.floor((Math.random() * 3)+ 1);
     }
-    db.then(client => {
-        client.query(`SELECT * FROM userdata WHERE id = '${message.author.id}'`, function (err, results) {
-            if (err) throw err
-            if(results.length < 1){
-                sql = `INSERT INTO userdata (id, username, xp, coins, daily) VALUES ( '${message.author.id}','${message.author.username}', '${xp}', '${coins}', 0000-00-00)`;
-            } else {
-                let curXP = results[0].xp;
-                let curCoins = results[0].coins;
-                sql = `UPDATE userdata SET xp = ${curXP + xp}, coins = ${curCoins + coins} WHERE id=${message.author.id}`;
-            }
-            db.then(insertXP => {
-                insertXP.query(sql, function(err, result) {
-                    console.log(`Added ${xp} xp and ${coins} coins to ${message.author.username}.`);
+    pool.query(`SELECT * FROM userdata WHERE id = '${message.author.id}'`, (error, response) => {
+        if(error) {
+            console.log('DB_ERROR: ', error);
+        } else {
+            if(response.length < 1){
+                pool.query(`INSERT INTO userdata (id, username, xp, coins, daily) VALUES ( '${message.author.id}','${message.author.username}', '${xp}', '${coins}', 2018-12-20)`, (error, response) => {
+                    if (error) console.log('DB_ERROR: Failed to insert new user: ', error);
+                    if (response) console.log('Inserted new user to DB:', message.author.username);
                 });
-            })
-        })
+            } else {
+                let curXP = response.rows[0].xp;
+                let curCoins = response.rows[0].coins;
+
+                return new Promise((resolve, reject) => {
+                    pool.query(
+                      'UPDATE userdata SET xp = $1, coins = $2 WHERE id=$3',
+                      [curXP + xp, curCoins + coins, message.author.id],
+                      (error, response) => {
+                        if (error) return reject(error);
+                        if (response) console.log(`Added ${xp} xp and ${coins} coins to ${message.author.username}.`);
+              
+                        resolve();
+                      }
+                    )
+                  });
+            }
+        }
     });
     // End of XP and coins system
 
-    // check if a message is a command, if it is, split/slice it like this..
+    // check if a message is a command, if it is, split/slice it..
     let messageArray = message.content.split(" ");
     let command = messageArray[0];
     let args = messageArray.slice(1);
@@ -100,7 +79,7 @@ bot.on("message", async message => {
     if(!command.startsWith(settings.prefix)) return;
     
     let cmd = bot.commands.get(command.slice(settings.prefix.length));
-    if(cmd) cmd.run(bot, message, args, db);
+    if(cmd) cmd.run(bot, message, args, pool);
 });
 
 bot.login(settings.token);
