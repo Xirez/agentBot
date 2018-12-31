@@ -1,10 +1,9 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
-
-#VS Settings
-/.vs*
-
 # dependencies
 /node_modules*
-/report_archive*
 /dbBackup*
 /settings*
+
+# Misc
+/img*
+/report_archive*
+changelog.txt
