@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 
 module.exports.run = async (bot, message, args) => {
-  let replyChannel = message.guild.channels.find("name", "unmatched_general");
+  let replyChannel = message.guild.channels.find("name", "bot-spam");
 
   if (args.length >= 2) {
     let village1 = new Village(args[0]);
