@@ -15,7 +15,8 @@ module.exports.run = async (bot, message, args) => {
         .addField("!coins ", `Displays your current coins amount.`)
         .addField("!topcoins ", `Shows top 3 richest users, aswell as the total amount of coins on the server.`)
         .addField("!daily ", `Adds a fixed amount of coins to your account, only useable once/day.`)
-        .addField("!pay ", `Transfer coins to someone else EG: !pay [user] [amount].`);
+        .addField("!pay ", `Transfer coins to someone else EG: !pay [user] [amount].`)
+        .addField("!kp ", `Shows two img's of culturepoints efficiency.`);
 
         let replyChannel = message.guild.channels.find("name", "bot-spam");
         replyChannel.send(embed).then(msg => {msg.delete(60000)});

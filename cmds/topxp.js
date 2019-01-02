@@ -23,12 +23,12 @@ module.exports.run = async (bot, message, args, pool) => {
             let rankThreeXP = response.rows[2].xp;
 
             let embed = new Discord.RichEmbed()
-        .setColor("#9b59b6")
-        .setAuthor(`Top 3 active users!`)
-        .addField(`1) ${rankOne}`, `${rankOneXP}`)
-        .addField(`2) ${rankTwo}`, `${rankTwoXP}`)
-        .addField(`3) ${rankThree}`, `${rankThreeXP}`)
-        .setDescription(`There is a total of ${guildXP}xp among our ${guildUsers} users!`);
+            .setColor("#9b59b6")
+            .setAuthor(`Top 3 active users!`)
+            .addField(`1) ${rankOne}`, `${rankOneXP}`)
+            .addField(`2) ${rankTwo}`, `${rankTwoXP}`)
+            .addField(`3) ${rankThree}`, `${rankThreeXP}`)
+            .setDescription(`There is a total of ${guildXP}xp among our ${guildUsers} users!`);
 
         replyChannel.send(embed);
         console.log(`Displaying Top 3 XP.`);
