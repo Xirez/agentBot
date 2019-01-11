@@ -9,7 +9,7 @@ module.exports.run = async (bot, message, args) => {
         .then(msg => msg.delete(12000));
         console.log(`${message.author.username} has deleted ${args[0]} messages from channel "${message.channel.name}".`);
     })
-    .catch(err => console.log(`${message.author.username} - ${err.message}`)).then(message.channel.send(`Can only bulk delete messages that are under 14 days old.`));
+    .catch(err => console.log(`${message.author.username} - ${err.message}`));
 }
 
 module.exports.help = {

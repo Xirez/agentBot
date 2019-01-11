@@ -45,7 +45,7 @@ bot.on("message", async message => {
         if(error) {
             console.log('DB_ERROR: ', error);
         } else {
-            if(response.length < 1){
+            if(response == 'undefined' < 1){
                 pool.query(`INSERT INTO userdata (id, username, xp, coins, daily) VALUES ( '${message.author.id}','${message.author.username}', '${xp}', '${coins}', 2018-12-20)`, (error, response) => {
                     if (error) console.log('DB_ERROR: Failed to insert new user: ', error);
                     if (response) console.log('Inserted new user to DB:', message.author.username);
@@ -70,6 +70,20 @@ bot.on("message", async message => {
         }
     });
     // End of XP and coins system
+
+    //DEBUG
+    bot.on('error', console.error);
+    bot.on('error', async error => {
+        let replyChannel = message.guild.channels.find("name", "bot-log");
+
+        let embed = new Discord.RichEmbed()
+        .setAuthor("DEBUGGING")
+        .setDescription("Looking deep, and i found dis!?")
+        .setColor("#9b59b6")
+        .addField("Error: ", `${error}`);
+
+        replyChannel.send(embed);
+    });
 
     // check if a message is a command, if it is, split/slice it..
     let messageArray = message.content.split(" ");

@@ -42,9 +42,8 @@ function getTravelTime(time)
   var mins = Math.floor((toSec - (hrs * 3600)) / 60);
   var secs = Math.floor(toSec - (hrs * 3600 + mins * 60));
 
-  // Output "4:03:59"
+  // Output "hh:mm:ss"
   var res = `${hrs}h:${mins}m:${secs}s`;
-
   return res;
 }
 
