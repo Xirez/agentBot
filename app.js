@@ -45,7 +45,7 @@ bot.on("message", async message => {
         if(error) {
             console.log('DB_ERROR: ', error);
         } else {
-            if(response == 'undefined' < 1){
+            if(response == 'undefined'){
                 pool.query(`INSERT INTO userdata (id, username, xp, coins, daily) VALUES ( '${message.author.id}','${message.author.username}', '${xp}', '${coins}', 2018-12-20)`, (error, response) => {
                     if (error) console.log('DB_ERROR: Failed to insert new user: ', error);
                     if (response) console.log('Inserted new user to DB:', message.author.username);
